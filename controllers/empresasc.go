@@ -3,7 +3,9 @@ package empresasc
 import (
 	empresasm "ApiVigilante/models"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -17,7 +19,18 @@ import (
 
 // }
 
-//var NovaEmpresa models.empresasm
+//validaCampos para validar a entrada de dados
+func validaCampos(campo empresasm.Empresas) (bool, string) {
+	if campo.NmEmpresa == "" {
+		return false, "Nome da empresa esta vazio!"
+	}
+
+	if (strconv.FormatInt(campo.CdUsuario, 10) == "") || (campo.CdUsuario == 0) {
+		return false, "Codigo do usuario invalido!"
+	}
+
+	return true, "OK"
+}
 
 //TodasEmpresas - lista tudo
 func TodasEmpresas(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +80,29 @@ func ListaEmpresa(w http.ResponseWriter, r *http.Request) {
 	// 	defer db.Close()
 }
 
+//ListaSQLGormNativo retorno de teste
+func ListaSQLGormNativo(w http.ResponseWriter, r *http.Request) {
+
+	ua := r.Header.Get("TOKEN")
+
+	fmt.Println(ua)
+
+	var p []empresasm.ResultadoNativo
+	var err error
+
+	p, err = empresasm.ListaSQLGormNativo()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// w.Header().Set("Content-Type", "application/json")
+		// json.NewEncoder(w).Encode("erro")
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(p)
+
+}
+
 //InserirEmpresa controle
 func InserirEmpresa(w http.ResponseWriter, r *http.Request) {
 
@@ -80,12 +116,21 @@ func InserirEmpresa(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//tratamento
+	situacao, resposta := validaCampos(p)
+	if situacao == false {
+
+		// retorno := `{"SITUACAO": "RESTRICAO", "DS_SITUACAO": "` + resposta + `"}`
+
+		w.Header().Set("Content-Type", "application/json")
+		//json.NewEncoder(w).Encode(b)
+		fmt.Fprint(w, `{"SITUACAO" : "RESTRICAO", "DS_SITUACAO": "`+resposta+`"}`)
+		return
+	}
 
 	p, err = empresasm.InserirEmpresa(p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		// w.Header().Set("Content-Type", "application/json")
-		// json.NewEncoder(w).Encode("erro")
+
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -93,23 +138,20 @@ func InserirEmpresa(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//AletarEmpresa controle
-func AletarEmpresa(w http.ResponseWriter, r *http.Request) {
+//AlterarEmpresa controle
+func AlterarEmpresa(w http.ResponseWriter, r *http.Request) {
 
 	var p empresasm.Empresas
 	var err error
-
 	err = json.NewDecoder(r.Body).Decode(&p) //recebendo o json
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	p, err = empresasm.AlterarEmpresa(p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(p)
 

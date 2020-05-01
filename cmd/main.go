@@ -38,6 +38,7 @@ import (
 )
 
 func handleRequests() {
+
 	myRouter := mux.NewRouter().StrictSlash(true)
 
 	//clientes
@@ -51,8 +52,9 @@ func handleRequests() {
 	//	myRouter.HandleFunc("/empresas", empresasc.Teste).Methods("GET")
 	myRouter.HandleFunc("/empresas", empresasc.TodasEmpresas).Methods("GET")
 	myRouter.HandleFunc("/empresas/{cd_tipo_ocorrencia}", empresasc.ListaEmpresa).Methods("GET")
+	myRouter.HandleFunc("/listasql", empresasc.ListaSQLGormNativo).Methods("GET")
 	myRouter.HandleFunc("/empresas", empresasc.InserirEmpresa).Methods("POST")
-	myRouter.HandleFunc("/empresas", empresasc.AletarEmpresa).Methods("PUT")
+	myRouter.HandleFunc("/empresas", empresasc.AlterarEmpresa).Methods("PUT")
 	myRouter.HandleFunc("/empresas", empresasc.ApagarEmpresa).Methods("DELETE")
 
 	//PORTA

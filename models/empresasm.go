@@ -7,25 +7,30 @@ import (
 //Empresas estrutura
 type Empresas struct {
 	ID        int64  `gorm:"primary_key;column:CD_EMPRESA" json:"CD_EMPRESA"`
+	NmEmpresa string `gorm:"not null; column:NM_EMPRESA; " json:"NM_EMPRESA"`
+	CdUsuario int64  `gorm:"not null; column:CD_USUARIO;" json:"CD_USUARIO"`
+}
+
+//ResultadoNativo utilizado para retorno do sql nativo
+type ResultadoNativo struct {
+	CdEmpresa int64  `gorm:"primary_key;column:CD_EMPRESA" json:"CD_EMPRESA"`
 	NmEmpresa string `gorm:"column:NM_EMPRESA" json:"NM_EMPRESA"`
-	CdUsuario int64  `gorm:"column:CD_USUARIO" json:"CD_USUARIO"`
 }
 
 //TodasEmpresas lista todas
 func TodasEmpresas(p []Empresas) ([]Empresas, error) {
-	var err error
+
 	db := conexao.ConectarComGorm()
-	db.Find(&p)
+	err := db.Find(&p).Error
 	return p, err
 }
 
 //ListaEmpresa lista todas
 func ListaEmpresa(codigo string) (Empresas, error) {
 	var p Empresas
-	var err error
 
 	db := conexao.ConectarComGorm()
-	db.Where("CD_EMPRESA = ?", codigo).First(&p)
+	err := db.Where("CD_EMPRESA = ?", codigo).First(&p).Error
 	return p, err
 }
 
@@ -38,20 +43,44 @@ func InserirEmpresa(p Empresas) (Empresas, error) {
 
 //AlterarEmpresa altera empresa
 func AlterarEmpresa(p Empresas) (Empresas, error) {
-	var err error
+
 	db := conexao.ConectarComGorm()
-	//	db.First(&p)
-	//	p.NmEmpresa = "jinzhu 2"
-	db.Save(&p)
+
+	err := db.Save(&p).Error
 	return p, err
 }
 
 //ApagarEmpresa apaga nova empresa
 func ApagarEmpresa(p Empresas) (Empresas, error) {
-	var err error
+
 	db := conexao.ConectarComGorm()
-	db.Delete(&p)
+	err := db.Delete(&p).Error
 	return p, err
+}
+
+//ListaSQLGormNativo funcao em gorm para sql sem padrao
+func ListaSQLGormNativo() ([]ResultadoNativo, error) {
+
+	var registros []ResultadoNativo
+	// 	------------------
+	// gorm - nativo
+	// -----------------------
+	db := conexao.ConectarComGorm()
+	rows, err := db.Raw("SELECT CD_EMPRESA, NM_EMPRESA from empresas ORDER BY 1").Rows() // (*sql.Rows, error)
+	if err != nil {
+		return registros, err
+	}
+
+	for rows.Next() {
+		var linha ResultadoNativo
+		rows.Scan(&linha.CdEmpresa, &linha.NmEmpresa)
+		registros = append(registros, linha)
+	}
+	defer rows.Close()
+	defer db.Close()
+
+	return registros, err
+
 }
 
 //RodaSQL exemplo para um sql qualquer
