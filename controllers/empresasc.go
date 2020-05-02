@@ -118,9 +118,6 @@ func InserirEmpresa(w http.ResponseWriter, r *http.Request) {
 	//tratamento
 	situacao, resposta := validaCampos(p)
 	if situacao == false {
-
-		// retorno := `{"SITUACAO": "RESTRICAO", "DS_SITUACAO": "` + resposta + `"}`
-
 		w.Header().Set("Content-Type", "application/json")
 		//json.NewEncoder(w).Encode(b)
 		fmt.Fprint(w, `{"SITUACAO" : "RESTRICAO", "DS_SITUACAO": "`+resposta+`"}`)

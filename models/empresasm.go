@@ -11,10 +11,18 @@ type Empresas struct {
 	CdUsuario int64  `gorm:"not null; column:CD_USUARIO;" json:"CD_USUARIO"`
 }
 
+//Ocorrencias mostrando ocorrencias
+type Ocorrencias struct {
+	ID           int64  `gorm:"primary_key;column:CD_OCORRENCIA" json:"CD_OCORRENCIA"`
+	DsOcorrencia string `gorm:"not null; column:DS_OCORRENCIA; " json:"DS_OCORRENCIA"`
+	CdEmpresa    int64  `gorm:"not null; column:CD_EMPRESA; " json:"CD_EMPRESA"`
+}
+
 //ResultadoNativo utilizado para retorno do sql nativo
 type ResultadoNativo struct {
-	CdEmpresa int64  `gorm:"primary_key;column:CD_EMPRESA" json:"CD_EMPRESA"`
-	NmEmpresa string `gorm:"column:NM_EMPRESA" json:"NM_EMPRESA"`
+	CdEmpresa int64         `gorm:"primary_key;column:CD_EMPRESA" json:"CD_EMPRESA"`
+	NmEmpresa string        `gorm:"column:NM_EMPRESA" json:"NM_EMPRESA"`
+	Oco       []Ocorrencias `gorm:"column:OCO;" json:"OCO"`
 }
 
 //TodasEmpresas lista todas
@@ -58,10 +66,33 @@ func ApagarEmpresa(p Empresas) (Empresas, error) {
 	return p, err
 }
 
+//adicionaOcorrencias as ocorrencias em um campo do tipo ocorrencias
+func adicionaOcorrencias(obj []Ocorrencias, PcdEmpresa int64) ([]Ocorrencias, error) {
+
+	var ltOcorrencias []Ocorrencias
+
+	db := conexao.ConectarComGorm()
+
+	rows, err := db.Raw("SELECT CD_OCORRENCIA, DS_OCORRENCIA , CD_EMPRESA from ocorrencias where CD_EMPRESA=? ORDER BY 1", PcdEmpresa).Rows() // (*sql.Rows, error)
+	if err != nil {
+		return ltOcorrencias, err
+	}
+
+	for rows.Next() {
+		var linha Ocorrencias
+		rows.Scan(&linha.ID, &linha.DsOcorrencia, &linha.CdEmpresa)
+		//tentando adicionar o oco
+		ltOcorrencias = append(ltOcorrencias, Ocorrencias{ID: linha.ID, DsOcorrencia: linha.DsOcorrencia, CdEmpresa: linha.CdEmpresa})
+	}
+
+	return ltOcorrencias, err
+}
+
 //ListaSQLGormNativo funcao em gorm para sql sem padrao
 func ListaSQLGormNativo() ([]ResultadoNativo, error) {
 
 	var registros []ResultadoNativo
+
 	// 	------------------
 	// gorm - nativo
 	// -----------------------
@@ -74,7 +105,18 @@ func ListaSQLGormNativo() ([]ResultadoNativo, error) {
 	for rows.Next() {
 		var linha ResultadoNativo
 		rows.Scan(&linha.CdEmpresa, &linha.NmEmpresa)
+
+		//adicionando as ocorrencias
+		gg, err := adicionaOcorrencias(linha.Oco, linha.CdEmpresa)
+		if err != nil {
+			return registros, err
+		}
+		for i := 0; i < len(gg); i++ {
+			linha.Oco = append(linha.Oco, gg[i])
+		}
+
 		registros = append(registros, linha)
+
 	}
 	defer rows.Close()
 	defer db.Close()
