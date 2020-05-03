@@ -88,7 +88,7 @@ func adicionaOcorrencias(obj []Ocorrencias, PcdEmpresa int64) ([]Ocorrencias, er
 	return ltOcorrencias, err
 }
 
-//ListaSQLGormNativo funcao em gorm para sql sem padrao
+//ListaSQLGormNativo funcao em gorm para sql sem padrao (neste exemplo ele lista as empresas com as ocorrencias da mesma)
 func ListaSQLGormNativo() ([]ResultadoNativo, error) {
 
 	var registros []ResultadoNativo

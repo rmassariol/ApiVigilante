@@ -24,7 +24,9 @@
 package main
 
 import (
-	empresasc "ApiVigilante/controllers"
+	empresasc "ApiVigilante/controllers/empresasc"
+	"ApiVigilante/controllers/usuariosc"
+
 	"fmt"
 	"log"
 	"net/http"
@@ -49,13 +51,20 @@ func handleRequests() {
 	//myRouter.HandleFunc("/login", login.Logar).Methods("GET")
 
 	//empresas
-	//	myRouter.HandleFunc("/empresas", empresasc.Teste).Methods("GET")
 	myRouter.HandleFunc("/empresas", empresasc.TodasEmpresas).Methods("GET")
-	myRouter.HandleFunc("/empresas/{cd_tipo_ocorrencia}", empresasc.ListaEmpresa).Methods("GET")
-	myRouter.HandleFunc("/listasql", empresasc.ListaSQLGormNativo).Methods("GET")
+	myRouter.HandleFunc("/empresas/{cd_empresa}", empresasc.ListaEmpresa).Methods("GET")
+	myRouter.HandleFunc("/empresas/listasql", empresasc.ListaSQLGormNativo).Methods("GET")
 	myRouter.HandleFunc("/empresas", empresasc.InserirEmpresa).Methods("POST")
 	myRouter.HandleFunc("/empresas", empresasc.AlterarEmpresa).Methods("PUT")
 	myRouter.HandleFunc("/empresas", empresasc.ApagarEmpresa).Methods("DELETE")
+
+	//usuarios
+	myRouter.HandleFunc("/usuarios", usuariosc.TodasUsuarios).Methods("GET")
+	myRouter.HandleFunc("/usuarios/{cd_usuario}", usuariosc.ListaUsuario).Methods("GET")
+	//	myRouter.HandleFunc("/listasql", usuariosc.ListaSQLGormNativo).Methods("GET")
+	myRouter.HandleFunc("/usuarios", usuariosc.InserirUsuario).Methods("POST")
+	myRouter.HandleFunc("/usuarios", usuariosc.AlterarUsuario).Methods("PUT")
+	myRouter.HandleFunc("/usuarios", usuariosc.ApagarUsuario).Methods("DELETE")
 
 	//PORTA
 	log.Fatal(http.ListenAndServe(":8500", myRouter))

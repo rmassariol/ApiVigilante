@@ -1,44 +1,30 @@
-package empresasc
+package usuariosc
 
 import (
-	empresasm "ApiVigilante/models"
+	usuariosm "ApiVigilante/models/usuariosm"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
-//importacao
-
-//Teste e para teste
-// func Teste(w http.ResponseWriter, r *http.Request) {
-
-// 	fmt.Fprint(w, "Server running in port:")
-
-// }
-
 //validaCampos para validar a entrada de dados
-func validaCampos(campo empresasm.Empresas) (bool, string) {
-	if campo.NmEmpresa == "" {
-		return false, "Nome da empresa esta vazio!"
-	}
-
-	if (strconv.FormatInt(campo.CdUsuario, 10) == "") || (campo.CdUsuario == 0) {
-		return false, "Codigo do usuario invalido!"
+func validaCampos(campo usuariosm.Usuarios) (bool, string) {
+	if campo.NmUsuario == "" {
+		return false, "Nome da usuario esta vazio!"
 	}
 
 	return true, "OK"
 }
 
-//TodasEmpresas - lista tudo
-func TodasEmpresas(w http.ResponseWriter, r *http.Request) {
+//TodasUsuarios - lista tudo
+func TodasUsuarios(w http.ResponseWriter, r *http.Request) {
 
-	var p []empresasm.Empresas
+	var p []usuariosm.Usuarios
 	var err error
 
-	p, err = empresasm.TodasEmpresas(p)
+	p, err = usuariosm.TodasUsuarios(p)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -55,16 +41,16 @@ func TodasEmpresas(w http.ResponseWriter, r *http.Request) {
 	// 	defer db.Close()
 }
 
-//ListaEmpresa - lista tudo
-func ListaEmpresa(w http.ResponseWriter, r *http.Request) {
+//ListaUsuario - lista tudo
+func ListaUsuario(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	codigo := vars["cd_tipo_ocorrencia"]
+	codigo := vars["cd_usuario"]
 
-	var p empresasm.Empresas
+	var p usuariosm.Usuarios
 	var err error
 
-	p, err = empresasm.ListaEmpresa(codigo)
+	p, err = usuariosm.ListaUsuario(codigo)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -81,32 +67,37 @@ func ListaEmpresa(w http.ResponseWriter, r *http.Request) {
 }
 
 //ListaSQLGormNativo retorno de teste
-func ListaSQLGormNativo(w http.ResponseWriter, r *http.Request) {
+// func ListaSQLGormNativo(w http.ResponseWriter, r *http.Request) {
 
-	ua := r.Header.Get("TOKEN")
+// 	// ua := r.Header.Get("TOKEN")
+// 	// fmt.Println(ua)
 
-	fmt.Println(ua)
+// 	//validando o acesso
+// 	if utils.ValidaAcesso(r.Header.Get("USUARIO"), r.Header.Get("SENHA"), r.Header.Get("TOKEN")) == false {
+// 		fmt.Fprint(w, `{"SITUACAO" : "RESTRICAO", "DS_SITUACAO": "USUARIO SEM ACESSO!"}`)
+// 		return
+// 	}
 
-	var p []empresasm.ResultadoNativo
-	var err error
+// 	var p []usuariosm.ResultadoNativo
+// 	var err error
 
-	p, err = empresasm.ListaSQLGormNativo()
+// 	p, err = usuariosm.ListaSQLGormNativo()
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		// w.Header().Set("Content-Type", "application/json")
-		// json.NewEncoder(w).Encode("erro")
-	}
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		// w.Header().Set("Content-Type", "application/json")
+// 		// json.NewEncoder(w).Encode("erro")
+// 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(p)
+// 	w.Header().Set("Content-Type", "application/json")
+// 	json.NewEncoder(w).Encode(p)
 
-}
+// }
 
-//InserirEmpresa controle
-func InserirEmpresa(w http.ResponseWriter, r *http.Request) {
+//InserirUsuario controle
+func InserirUsuario(w http.ResponseWriter, r *http.Request) {
 
-	var p empresasm.Empresas
+	var p usuariosm.Usuarios
 	var err error
 
 	err = json.NewDecoder(r.Body).Decode(&p) //recebendo o json
@@ -124,7 +115,7 @@ func InserirEmpresa(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err = empresasm.InserirEmpresa(p)
+	p, err = usuariosm.InserirUsuario(p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
@@ -135,17 +126,17 @@ func InserirEmpresa(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//AlterarEmpresa controle
-func AlterarEmpresa(w http.ResponseWriter, r *http.Request) {
+//AlterarUsuario controle
+func AlterarUsuario(w http.ResponseWriter, r *http.Request) {
 
-	var p empresasm.Empresas
+	var p usuariosm.Usuarios
 	var err error
 	err = json.NewDecoder(r.Body).Decode(&p) //recebendo o json
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	p, err = empresasm.AlterarEmpresa(p)
+	p, err = usuariosm.AlterarUsuario(p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -154,9 +145,9 @@ func AlterarEmpresa(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//ApagarEmpresa apaga nova empresa
-func ApagarEmpresa(w http.ResponseWriter, r *http.Request) {
-	var p empresasm.Empresas
+//ApagarUsuario apaga nova usuario
+func ApagarUsuario(w http.ResponseWriter, r *http.Request) {
+	var p usuariosm.Usuarios
 	var err error
 
 	err = json.NewDecoder(r.Body).Decode(&p) //recebendo o json
@@ -165,7 +156,7 @@ func ApagarEmpresa(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err = empresasm.ApagarEmpresa(p)
+	p, err = usuariosm.ApagarUsuario(p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
