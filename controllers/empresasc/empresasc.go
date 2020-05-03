@@ -88,10 +88,13 @@ func ListaSQLGormNativo(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println(ua)
 
 	//validando o acesso
-	if utils.ValidaAcesso(r.Header.Get("USUARIO"), r.Header.Get("SENHA"), r.Header.Get("TOKEN")) == false {
+	passou, token := utils.ValidaAcesso(r.Header.Get("USUARIO"), r.Header.Get("SENHA"), r.Header.Get("TOKEN"))
+	if passou == false {
 		fmt.Fprint(w, `{"SITUACAO" : "RESTRICAO", "DS_SITUACAO": "USUARIO SEM ACESSO!"}`)
 		return
 	}
+
+	println(token)
 
 	var p []empresasm.ResultadoNativo
 	var err error

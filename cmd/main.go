@@ -52,8 +52,8 @@ func handleRequests() {
 
 	//empresas
 	myRouter.HandleFunc("/empresas", empresasc.TodasEmpresas).Methods("GET")
-	myRouter.HandleFunc("/empresas/{cd_empresa}", empresasc.ListaEmpresa).Methods("GET")
 	myRouter.HandleFunc("/empresas/listasql", empresasc.ListaSQLGormNativo).Methods("GET")
+	myRouter.HandleFunc("/empresas/{cd_empresa}", empresasc.ListaEmpresa).Methods("GET")
 	myRouter.HandleFunc("/empresas", empresasc.InserirEmpresa).Methods("POST")
 	myRouter.HandleFunc("/empresas", empresasc.AlterarEmpresa).Methods("PUT")
 	myRouter.HandleFunc("/empresas", empresasc.ApagarEmpresa).Methods("DELETE")
@@ -91,6 +91,7 @@ func main() {
 
 	fmt.Println("SERVIDOR VIGILANTE ONLINE")
 	fmt.Println("SIMPLESTI.COM.BR")
+	fmt.Println("Versão: 1.0.0.1")
 	// Handle Subsequent requests
 	handleRequests()
 }
