@@ -21,6 +21,12 @@
 //gopath
 //%USERPROFILE%\go
 
+//compilar para linux
+//tentar esse no ms-dos
+//set GOOS=linux
+//go build
+
+
 package main
 
 import (
